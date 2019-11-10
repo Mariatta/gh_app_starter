@@ -20,7 +20,6 @@ cache = cachetools.LRUCache(maxsize=500)
 routes = web.RouteTableDef()
 
 
-
 @routes.get("/", name="home")
 async def handle_get(request):
     return web.Response(text="Hello world")
@@ -35,11 +34,7 @@ async def webhook(request):
         if event.event == "ping":
             return web.Response(status=200)
         async with aiohttp.ClientSession() as session:
-            gh = gh_aiohttp.GitHubAPI(
-                session,
-                "demo",
-                cache=cache,
-            )
+            gh = gh_aiohttp.GitHubAPI(session, "demo", cache=cache)
 
             await asyncio.sleep(1)
             await router.dispatch(event, gh)
@@ -53,12 +48,10 @@ async def webhook(request):
         return web.Response(status=500)
 
 
-
 @router.register("installation", action="created")
 async def repo_installation_added(event, gh, *args, **kwargs):
     installation_id = event.data["installation"]["id"]
     pass
-
 
 
 if __name__ == "__main__":  # pragma: no cover
