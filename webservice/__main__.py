@@ -72,6 +72,32 @@ async def repo_installation_added(event, gh, *args, **kwargs):
         )
 
 
+@router.register("pull_request", action="opened")
+async def pr_opened(event, gh, *args, **kwargs):
+    installation_id = event.data["installation"]["id"]
+    installation_access_token = await utils.get_installation_access_token(
+        gh, installation_id
+    )
+
+    url = event.data["pull_request"]["comments_url"]
+    author_association = event.data["pull_request"]["author_association"]
+    author = event.data["pull_request"]["user"]["login"]
+    if not author_association:
+        await gh.post(
+            url,
+            data={"body": f"Welcome first time contributor @{author}!"},
+            oauth_token=installation_access_token["token"],
+        )
+    else:
+        await gh.post(
+            url,
+            data={
+                "body": f"Welcome back @{author}, you're a {author_association} of this project."
+            },
+            oauth_token=installation_access_token["token"],
+        )
+
+
 if __name__ == "__main__":
     app = web.Application()
 
