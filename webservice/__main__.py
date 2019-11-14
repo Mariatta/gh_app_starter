@@ -82,10 +82,10 @@ async def pr_opened(event, gh, *args, **kwargs):
     url = event.data["pull_request"]["comments_url"]
     author_association = event.data["pull_request"]["author_association"]
     author = event.data["pull_request"]["user"]["login"]
-    if not author_association:
+    if author_association == "NONE":
         await gh.post(
             url,
-            data={"body": f"Welcome first time contributor @{author}!"},
+            data={"body": f"Thanks for the PR, @{author}. Thanks for your first contribution!"},
             oauth_token=installation_access_token["token"],
         )
     else:
